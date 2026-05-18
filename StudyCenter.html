@@ -556,11 +556,15 @@ function save(){
   try{
     var data={assignments:assignments,classColorMap:classColorMap,myClasses:myClasses,tests:tests,notes:notes,pomoTodayCount:pomoTodayCount};
     localStorage.setItem('sc_v5',JSON.stringify(data));
-    // Also write to Cache API so the Service Worker can read it for background notifications
+    // Write to Cache API so the Service Worker can read it
     if('caches' in window){
       caches.open('sc-data').then(function(cache){
         cache.put('studycenter-data',new Response(JSON.stringify(data),{headers:{'Content-Type':'application/json'}}));
       }).catch(function(){});
+    }
+    // Write to chrome.storage so the Chrome Extension can read it on login
+    if(typeof chrome!=='undefined'&&chrome.storage&&chrome.storage.local){
+      chrome.storage.local.set({'sc_v5':data});
     }
   }catch(e){}
 }
